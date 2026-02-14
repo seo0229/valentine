@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💌 Will You Be My Valentine?</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    @keyframes heart-out {
+      0% {
+        transform: translateY(0) scale(0.3) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.4;
+        transform: translateY(-10px) scale(0.6) rotate(-3deg);
+      }
+      30% {
+        opacity: 1;
+        transform: translateY(-60px) scale(1) rotate(5deg);
+      }
+      70% {
+        opacity: 0.8;
+        transform: translateY(-180px) scale(1.05) rotate(-8deg);
+      }
+      100% {
+        transform: translateY(-280px) scale(0.7) rotate(12deg);
+        opacity: 0;
+      }
+    }
+
+    .animate-heart-out {
+      animation: heart-out 3.5s ease-in-out forwards;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10% { transform: translateX(-8px) rotate(-1deg); }
+      20% { transform: translateX(8px) rotate(1deg); }
+      30% { transform: translateX(-6px) rotate(-0.5deg); }
+      40% { transform: translateX(6px) rotate(0.5deg); }
+      50% { transform: translateX(-4px); }
+      60% { transform: translateX(4px); }
+      70% { transform: translateX(-2px); }
+      80% { transform: translateX(2px); }
+    }
+
+    .animate-shake {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes red-flash {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .animate-red-flash {
+      animation: red-flash 0.5s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function App() {
+      const [isOpen, setIsOpen] = useState(false);
+      const [showLetter, setShowLetter] = useState(false);
+      const [isClosing, setIsClosing] = useState(false);
+      const [isOpening, setIsOpening] = useState(false);
+      const [showHearts, setShowHearts] = useState(false);
+      const [waitingForClick, setWaitingForClick] = useState(false);
+      const [answered, setAnswered] = useState(false);
+      const [yesButtonSize, setYesButtonSize] = useState(1);
+      const [noClicks, setNoClicks] = useState(0);
+      const [shaking, setShaking] = useState(false);
+
+      const handleOpen = () => {
+        if (isClosing || isOpening) return;
+        setIsClosing(true);
+        setTimeout(() => {
+          setIsClosing(false);
+          setIsOpening(true);
+        }, 600);
+        setTimeout(() => {
+          setIsOpen(true);
+          setShowHearts(true);
+          setWaitingForClick(true);
+        }, 1800);
+      };
+
+      const handleContinue = () => {
+        if (!waitingForClick) return;
+        setWaitingForClick(false);
+        setShowHearts(false);
+        setTimeout(() => {
+          setShowLetter(true);
+        }, 400);
+      };
+
+      const handleReset = () => {
+        setIsOpen(false);
+        setShowLetter(false);
+        setIsClosing(false);
+        setIsOpening(false);
+        setShowHearts(false);
+        setWaitingForClick(false);
+        setAnswered(false);
+        setNoClicks(0);
+        setShaking(false);
+        setYesButtonSize(1);
+      };
+
+      const handleYes = () => {
+        setAnswered(true);
+      };
+
+      const handleNo = () => {
+        setNoClicks(prev => prev + 1);
+        setYesButtonSize(prev => prev * 1.4);
+        setShaking(true);
+        setTimeout(() => setShaking(false), 500);
+      };
+
+      const heartEmojis = ['💕', '💖', '❤️', '💝', '💗', '💓'];
+
+      return (
+        <div
+          className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-red-50 to-pink-200 p-4 relative overflow-hidden ${shaking ? 'animate-shake' : ''}`}
+          onClick={waitingForClick ? handleContinue : undefined}
+          style={{ cursor: waitingForClick ? 'pointer' : 'default' }}
+        >
+          {/* Red flash overlay */}
+          {shaking && (
+            <div className="fixed inset-0 pointer-events-none z-50 animate-red-flash"
+              style={{ backgroundColor: 'rgba(220, 38, 38, 0.3)' }}
+            />
+          )}
+
+          {/* ENVELOPE SCENE */}
+          {!showLetter && (
+            <div className="flex flex-col items-center">
+              <div className="relative" style={{
+                transform: isOpening ? 'scale(1.05)' : 'scale(1)',
+                transition: 'transform 0.8s ease-out',
+                perspective: '1000px',
+              }}>
+                {/* Hearts floating out */}
+                {showHearts && (
+                  <div className="absolute pointer-events-none z-40"
+                    style={{
+                      bottom: '100%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '320px',
+                      height: '300px',
+                    }}
+                  >
+                    {[...Array(8)].map((_, i) => {
+                      const positions = [18, 30, 42, 55, 65, 75, 35, 58];
+                      const sizes = [22, 28, 24, 30, 26, 22, 32, 20];
+                      return (
+                        <div
+                          key={i}
+                          className="absolute animate-heart-out"
+                          style={{
+                            left: `${positions[i]}%`,
+                            bottom: '0',
+                            animationDelay: `${i * 0.35}s`,
+                            fontSize: `${sizes[i]}px`,
+                          }}
+                        >
+                          {heartEmojis[i % heartEmojis.length]}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Envelope body */}
+                <div className="relative w-80 h-52 rounded-lg shadow-2xl overflow-hidden" style={{ backgroundColor: '#f4a0a0' }}>
+                  <div className="absolute top-0 left-0 w-0 h-0"
+                    style={{ borderLeft: '160px solid #e06060', borderTop: '104px solid transparent', borderBottom: '104px solid transparent' }}
+                  ></div>
+                  <div className="absolute top-0 right-0 w-0 h-0"
+                    style={{ borderRight: '160px solid #e06060', borderTop: '104px solid transparent', borderBottom: '104px solid transparent' }}
+                  ></div>
+                  <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+                    <div className="w-0 h-0"
+                      style={{ borderLeft: '160px solid transparent', borderRight: '160px solid transparent', borderBottom: '110px solid #d94f4f' }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Envelope top flap */}
+                <div className="absolute top-0 left-0 right-0 z-20"
+                  style={{
+                    transformOrigin: 'top center',
+                    transform: isOpening ? 'rotateX(-180deg)' : 'rotateX(0deg)',
+                    transition: 'transform 1.2s ease-in-out',
+                  }}
+                >
+                  <div className="w-0 h-0 mx-auto"
+                    style={{ borderLeft: '160px solid transparent', borderRight: '160px solid transparent', borderTop: '110px solid #c94444' }}
+                  ></div>
+                </div>
+
+                {/* Buttons */}
+                {!waitingForClick && !isOpen && (
+                  <div className="flex gap-6 justify-center mt-8">
+                    <button
+                      onClick={handleOpen}
+                      disabled={isClosing || isOpening}
+                      className="px-8 py-2 border-2 border-red-400 text-red-500 font-semibold rounded hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      OPEN
+                    </button>
+                    <button
+                      onClick={handleReset}
+                      className="px-8 py-2 border-2 border-red-400 text-red-500 font-semibold rounded hover:bg-red-50 transition-colors"
+                    >
+                      RESET
+                    </button>
+                  </div>
+                )}
+
+                {waitingForClick && (
+                  <p className="text-center text-red-400 mt-8 animate-pulse font-semibold" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+                    Tap anywhere to continue...
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* LETTER SCENE */}
+          {showLetter && (
+            <div
+              className="transition-all duration-1000"
+              style={{
+                opacity: showLetter ? 1 : 0,
+                transform: showLetter ? 'translateY(0) scale(1)' : 'translateY(100px) scale(0.8)',
+                overflow: 'visible',
+              }}
+            >
+              {!answered ? (
+                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg mx-auto text-center relative" style={{ fontFamily: "'Fredoka', sans-serif", overflow: 'visible' }}>
+                  <div className="absolute -top-4 -left-4 text-4xl">💕</div>
+                  <div className="absolute -top-4 -right-4 text-4xl">💝</div>
+
+                  <div className="mb-6 flex justify-center">
+                    <img
+                      src="./valentines-day-icegif-27.gif"
+                      alt="Cute bunny"
+                      className="w-40 h-40 object-contain"
+                    />
+                  </div>
+
+                  <h1 className="text-3xl font-bold text-pink-600 mb-10">
+                    Will you be my valentine?
+                  </h1>
+
+                  <div className="relative flex items-center justify-center" style={{ overflow: 'visible', minHeight: '60px' }}>
+                    <div className="flex gap-4 items-center" style={{ overflow: 'visible' }}>
+                      <button
+                        onClick={handleYes}
+                        className="bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-all duration-300 shadow-lg"
+                        style={{
+                          transform: `scale(${yesButtonSize})`,
+                          padding: '12px 40px',
+                          zIndex: 10,
+                        }}
+                      >
+                        Yes! 💚
+                      </button>
+
+                      {noClicks < 6 && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleNo(); }}
+                          className="bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-all duration-300 shadow-lg"
+                          style={{
+                            transform: `translateX(${noClicks * 30}px) scale(${Math.max(0.3, 1 - noClicks * 0.12)})`,
+                            padding: '12px 40px',
+                            opacity: Math.max(0.4, 1 - noClicks * 0.1),
+                            zIndex: 60,
+                          }}
+                        >
+                          No
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl shadow-2xl p-12 max-w-md mx-auto text-center" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+                  <div className="text-6xl mb-4">🎉💖🎉</div>
+                  <h1 className="text-4xl font-bold text-pink-600 mb-4">
+                    Yay!!!
+                  </h1>
+                  <p className="text-xl text-gray-700 mb-6">
+                    I knew you'd say yes! 💕
+                  </p>
+                  <div className="text-7xl mb-6">🐰❤️</div>
+                  <button
+                    onClick={handleReset}
+                    className="px-8 py-3 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-600 transition-colors shadow-lg"
+                  >
+                    Send Another 💌
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
